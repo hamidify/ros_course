@@ -1,29 +1,25 @@
 #!/usr/bin/env python
 import rospy
 from std_msgs.msg import String
-total = 90
-
+total = 0
+no_of_results = 0
 def calculateTotal(result):
 	global total 
-	rospy.loginfo(total)
-	total = total + int(result)
+	global no_of_results 
+	total = total + int(result.data)
+	no_of_results = no_of_results + 1
+	rospy.loginfo("I recieved %s and the total is %s ",result.data, total)
 
 def printInfo():
-	print("Publisher is down")
+	print("Subscriber is shut down!")
+	print("Number of results recived is ",no_of_results)
+	print("The aveerage from the collected results is ", total / no_of_results )
 
-def callback(data):
-	calculateTotal(data.data)
-	rospy.loginfo(rospy.get_caller_id() + "I got %s", data.data)
 
 def subscriber():
-	total = 0
 	rospy.init_node('subscriber', anonymous=True)
-	sub = rospy.Subscriber('NumberGenerator', String,callback)
+	sub = rospy.Subscriber('NumberGenerator', String, calculateTotal)
 	rospy.on_shutdown(printInfo)
-
-	# while sub.get_num_connections() == 0:
-	# 	print("heere",sub.get_num_connections(), rospy.is_shutdown())
-	# 	rospy.signal_shutdown ("publisher closed");
 	rospy.spin()
 
 if __name__ == '__main__':
